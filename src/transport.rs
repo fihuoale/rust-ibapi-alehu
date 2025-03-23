@@ -789,7 +789,7 @@ pub(crate) struct ConnectionMetadata {
 }
 
 #[derive(Debug)]
-pub(crate) struct Connection {
+pub struct Connection {
     client_id: i32,
     connection_url: String,
     reader: Mutex<TcpStream>,
@@ -864,7 +864,7 @@ impl Connection {
         Err(Error::ConnectionFailed)
     }
 
-    fn establish_connection(&self) -> Result<(), Error> {
+    pub fn establish_connection(&self) -> Result<(), Error> {
         self.handshake()?;
         self.start_api()?;
         self.receive_account_info()?;
@@ -915,7 +915,7 @@ impl Connection {
     }
 
     // sends server handshake
-    fn handshake(&self) -> Result<(), Error> {
+    pub fn handshake(&self) -> Result<(), Error> {
         let prefix = "API\0";
         let version = format!("v{MIN_SERVER_VERSION}..{MAX_SERVER_VERSION}");
         println!("handshake prefix: {:?}", prefix);
@@ -948,7 +948,7 @@ impl Connection {
     }
 
     // asks server to start processing messages
-    fn start_api(&self) -> Result<(), Error> {
+    pub fn start_api(&self) -> Result<(), Error> {
         const VERSION: i32 = 2;
         println!("startApi VERSION: {VERSION}");
 
@@ -1075,7 +1075,7 @@ fn parse_connection_time(connection_time: &str) -> (Option<OffsetDateTime>, Opti
     }
 }
 
-fn encode_packet(message: &str) -> String {
+pub fn encode_packet(message: &str) -> String {
     let data = message.as_bytes();
 
     let mut packet: Vec<u8> = Vec::with_capacity(data.len() + 4);

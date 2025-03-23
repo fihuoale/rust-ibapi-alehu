@@ -912,7 +912,7 @@ impl Connection {
         println!("{:?}", &packet);
         print_type_of(&packet);
         println!("");
-        print("Executing write message to stream");
+        println!("Executing write message to stream");
         print_type_of(&writer);
         println!("");
         writer.write_all(&packet)?;
@@ -945,10 +945,10 @@ impl Connection {
         let version = format!("v{MIN_SERVER_VERSION}..{MAX_SERVER_VERSION}");
         println!("handshake prefix: {:?}", &prefix);
         print_type_of(&prefix);
-        println("");
+        println!("");
         println!("handshake version: {:?}", &version);
         print_type_of(&version);
-        println("");
+        println!("");
 
         let packet = prefix.to_owned() + &encode_packet(&version);
         println!("handshake packet: {:?}", &packet);

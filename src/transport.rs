@@ -28,6 +28,10 @@ const MAX_SERVER_VERSION: i32 = server_versions::WSH_EVENT_DATA_FILTERS_DATE;
 const MAX_RETRIES: i32 = 20;
 const TWS_READ_TIMEOUT: Duration = Duration::from_secs(1);
 
+pub fn print_type_of<T>(_: &T) {
+    println!("{}", std::any::type_name::<T>())
+}
+
 pub(crate) trait MessageBus: Send + Sync {
     // Sends formatted message to TWS and creates a reply channel by request id.
     fn send_request(&self, request_id: i32, packet: &RequestMessage) -> Result<InternalSubscription, Error>;
@@ -878,7 +882,8 @@ impl Connection {
     pub fn write(&self, data: &str) -> Result<(), Error> {
         let mut writer = self.writer.lock()?;
         writer.write_all(data.as_bytes())?;
-        println!("{}", data);
+        println!("{}", &data);
+        print_type_of(&data);
         Ok(())
     }
 
@@ -895,6 +900,7 @@ impl Connection {
         packet.write_u32::<BigEndian>(data.len() as u32)?;
         packet.write_all(data)?;
         println!("{:?}", &packet);
+        print_type_of(&packet);
         writer.write_all(&packet)?;
 
         self.recorder.record_request(message);
@@ -924,14 +930,18 @@ impl Connection {
         let prefix = "API\0";
         let version = format!("v{MIN_SERVER_VERSION}..{MAX_SERVER_VERSION}");
         println!("handshake prefix: {:?}", &prefix);
+        print_type_of(&prefix);
         println!("handshake version: {:?}", &version);
+        print_type_of(&version);
 
         let packet = prefix.to_owned() + &encode_packet(&version);
         println!("handshake packet: {:?}", &packet);
+        print_type_of(&packet);
         self.write(&packet)?;
 
         let ack = self.read_message();
         println!("ack: {:?}", &ack);
+        print_type_of(&ack);
 
         let mut connection_metadata = self.connection_metadata.lock()?;
 
@@ -967,6 +977,7 @@ impl Connection {
             prelude.push_field(&"");
         }
         println!("startAPI prelude: {:?}", &prelude);
+        print_type_of(&prelude);
         self.write_message(prelude)?;
 
         Ok(())
@@ -1082,11 +1093,17 @@ fn parse_connection_time(connection_time: &str) -> (Option<OffsetDateTime>, Opti
 
 pub fn encode_packet(message: &str) -> String {
     let data = message.as_bytes();
+    println!("{:?}", &data);
+    print_type_of(&data);
 
     let mut packet: Vec<u8> = Vec::with_capacity(data.len() + 4);
+    println!("{:?}", &packet);
+    print_type_of(&packet);
 
     packet.write_u32::<BigEndian>(data.len() as u32).unwrap();
     packet.write_all(data).unwrap();
+    println!("{:?}", &packet);
+    print_type_of(&packet);
 
     std::str::from_utf8(&packet).unwrap().into()
 }

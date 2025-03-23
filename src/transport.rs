@@ -918,15 +918,15 @@ impl Connection {
     fn handshake(&self) -> Result<(), Error> {
         let prefix = "API\0";
         let version = format!("v{MIN_SERVER_VERSION}..{MAX_SERVER_VERSION}");
-        println!("handshake prefix: {prefix}");
-        println!("handshake version: {version}");
+        println!("handshake prefix: {:?}", prefix);
+        println!("handshake version: {:?}", version);
 
         let packet = prefix.to_owned() + &encode_packet(&version);
         println!("handshake packet: {:?}", packet);
         self.write(&packet)?;
 
         let ack = self.read_message();
-        println!("ack: {:?}", ack)
+        println!("ack: {:?}", ack);
 
         let mut connection_metadata = self.connection_metadata.lock()?;
 
@@ -961,7 +961,7 @@ impl Connection {
         if self.server_version() > server_versions::OPTIONAL_CAPABILITIES {
             prelude.push_field(&"");
         }
-        println!("startAPI prelude: {prelude}");
+        println!("startAPI prelude: {:?}", prelude);
         self.write_message(prelude)?;
 
         Ok(())

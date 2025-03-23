@@ -805,11 +805,15 @@ pub struct Connection {
 
 impl Connection {
     pub fn connect(client_id: i32, connection_url: &str) -> Result<Self, Error> {
+        println!("Creating a connection stream TcpStream::connect(connection_url)?");
+        println!("");
         let reader = TcpStream::connect(connection_url)?;
         let writer = reader.try_clone()?;
 
         reader.set_read_timeout(Some(TWS_READ_TIMEOUT))?;
 
+        println!("Assigning connection information to Connection struct");
+        println!("");
         let connection = Self {
             client_id,
             connection_url: connection_url.into(),
@@ -823,6 +827,8 @@ impl Connection {
             recorder: MessageRecorder::new(),
         };
 
+        println!("Executing establish_connection command");
+        println!("");
         connection.establish_connection()?;
 
         Ok(connection)
@@ -870,12 +876,16 @@ impl Connection {
 
     pub fn establish_connection(&self) -> Result<(), Error> {
         println!("starting establish connection");
+        println!("");
         self.handshake()?;
         println!("handshake complete");
+        println!("");
         self.start_api()?;
         println!("startApi complete");
+        println!("");
         self.receive_account_info()?;
         println!("accountInfo received");
+        println!("");
         Ok(())
     }
 
@@ -901,6 +911,10 @@ impl Connection {
         packet.write_all(data)?;
         println!("{:?}", &packet);
         print_type_of(&packet);
+        println!("");
+        print("Executing write message to stream");
+        print_type_of(&writer);
+        println!("");
         writer.write_all(&packet)?;
 
         self.recorder.record_request(message);
@@ -931,12 +945,15 @@ impl Connection {
         let version = format!("v{MIN_SERVER_VERSION}..{MAX_SERVER_VERSION}");
         println!("handshake prefix: {:?}", &prefix);
         print_type_of(&prefix);
+        println("");
         println!("handshake version: {:?}", &version);
         print_type_of(&version);
+        println("");
 
         let packet = prefix.to_owned() + &encode_packet(&version);
         println!("handshake packet: {:?}", &packet);
         print_type_of(&packet);
+        println!("Executing write package to stream");
         self.write(&packet)?;
 
         let ack = self.read_message();
@@ -966,6 +983,7 @@ impl Connection {
     pub fn start_api(&self) -> Result<(), Error> {
         const VERSION: i32 = 2;
         println!("startApi VERSION: {VERSION}");
+        println!("");
 
         let prelude = &mut RequestMessage::default();
 
@@ -978,6 +996,7 @@ impl Connection {
         }
         println!("startAPI prelude: {:?}", &prelude);
         print_type_of(&prelude);
+        println!("Execute write to stream");
         self.write_message(prelude)?;
 
         Ok(())

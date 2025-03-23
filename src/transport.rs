@@ -895,7 +895,8 @@ impl Connection {
         println!("{}", &data);
         print_type_of(&data);
         let data_as_bytes = data.as_bytes();
-        println!("Send data type: {:?}",print_type_of(data_as_bytes));
+        println!("Send data type");
+        print_type_of(data_as_bytes);
         println!("");
         Ok(())
     }

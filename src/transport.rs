@@ -423,7 +423,7 @@ impl TcpMessageBus {
 const UNSPECIFIED_REQUEST_ID: i32 = -1;
 
 impl MessageBus for TcpMessageBus {
-    fn send_request(&self, request_id: i32, packet: &RequestMessage) -> Result<InternalSubscription, Error> {
+    pub fn send_request(&self, request_id: i32, packet: &RequestMessage) -> Result<InternalSubscription, Error> {
         let (sender, receiver) = channel::unbounded();
         let sender_copy = sender.clone();
 
@@ -779,7 +779,7 @@ impl SubscriptionBuilder {
 }
 
 #[derive(Default, Clone, Debug)]
-pub(crate) struct ConnectionMetadata {
+pub struct ConnectionMetadata {
     pub(crate) next_order_id: i32,
     pub(crate) client_id: i32,
     pub(crate) server_version: i32,
@@ -865,19 +865,24 @@ impl Connection {
     }
 
     pub fn establish_connection(&self) -> Result<(), Error> {
+        println!("starting establish connection");
         self.handshake()?;
+        println!("handshake complete");
         self.start_api()?;
+        println!("startApi complete");
         self.receive_account_info()?;
+        println!("accountInfo received");
         Ok(())
     }
 
-    fn write(&self, data: &str) -> Result<(), Error> {
+    pub fn write(&self, data: &str) -> Result<(), Error> {
         let mut writer = self.writer.lock()?;
         writer.write_all(data.as_bytes())?;
+        println!("{}", data);
         Ok(())
     }
 
-    fn write_message(&self, message: &RequestMessage) -> Result<(), Error> {
+    pub fn write_message(&self, message: &RequestMessage) -> Result<(), Error> {
         let mut writer = self.writer.lock()?;
 
         let data = message.encode();
@@ -889,7 +894,7 @@ impl Connection {
 
         packet.write_u32::<BigEndian>(data.len() as u32)?;
         packet.write_all(data)?;
-
+        println!("{}", &packet);
         writer.write_all(&packet)?;
 
         self.recorder.record_request(message);
@@ -918,15 +923,15 @@ impl Connection {
     pub fn handshake(&self) -> Result<(), Error> {
         let prefix = "API\0";
         let version = format!("v{MIN_SERVER_VERSION}..{MAX_SERVER_VERSION}");
-        println!("handshake prefix: {:?}", prefix);
-        println!("handshake version: {:?}", version);
+        println!("handshake prefix: {:?}", &prefix);
+        println!("handshake version: {:?}", &version);
 
         let packet = prefix.to_owned() + &encode_packet(&version);
-        println!("handshake packet: {:?}", packet);
+        println!("handshake packet: {:?}", &packet);
         self.write(&packet)?;
 
         let ack = self.read_message();
-        println!("ack: {:?}", ack);
+        println!("ack: {:?}", &ack);
 
         let mut connection_metadata = self.connection_metadata.lock()?;
 
@@ -961,7 +966,7 @@ impl Connection {
         if self.server_version() > server_versions::OPTIONAL_CAPABILITIES {
             prelude.push_field(&"");
         }
-        println!("startAPI prelude: {:?}", prelude);
+        println!("startAPI prelude: {:?}", &prelude);
         self.write_message(prelude)?;
 
         Ok(())

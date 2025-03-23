@@ -918,6 +918,8 @@ impl Connection {
     fn handshake(&self) -> Result<(), Error> {
         let prefix = "API\0";
         let version = format!("v{MIN_SERVER_VERSION}..{MAX_SERVER_VERSION}");
+        println!("prefix: {prefix}")
+        println!("version: {version}")
 
         let packet = prefix.to_owned() + &encode_packet(&version);
         self.write(&packet)?;

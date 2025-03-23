@@ -894,8 +894,8 @@ impl Connection {
         writer.write_all(&data.as_bytes())?;
         println!("{}", &data);
         print_type_of(&data);
-        let data_as_bytes = &data.as_bytes();
-        println!("Send data type: {:?}",print_type_of(&data_as_bytes));
+        let data_as_bytes = data.as_bytes();
+        println!("Send data type: {:?}",print_type_of(data_as_bytes));
         println!("");
         Ok(())
     }

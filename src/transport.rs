@@ -423,7 +423,7 @@ impl TcpMessageBus {
 const UNSPECIFIED_REQUEST_ID: i32 = -1;
 
 impl MessageBus for TcpMessageBus {
-    pub fn send_request(&self, request_id: i32, packet: &RequestMessage) -> Result<InternalSubscription, Error> {
+    fn send_request(&self, request_id: i32, packet: &RequestMessage) -> Result<InternalSubscription, Error> {
         let (sender, receiver) = channel::unbounded();
         let sender_copy = sender.clone();
 
@@ -894,7 +894,7 @@ impl Connection {
 
         packet.write_u32::<BigEndian>(data.len() as u32)?;
         packet.write_all(data)?;
-        println!("{}", &packet);
+        println!("{:?}", &packet);
         writer.write_all(&packet)?;
 
         self.recorder.record_request(message);

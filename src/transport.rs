@@ -891,9 +891,12 @@ impl Connection {
 
     pub fn write(&self, data: &str) -> Result<(), Error> {
         let mut writer = self.writer.lock()?;
-        writer.write_all(data.as_bytes())?;
+        writer.write_all(&data.as_bytes())?;
         println!("{}", &data);
         print_type_of(&data);
+        data_as_bytes = &data.as_bytes();
+        println!("Send data type: {:?}",print_type_of(&data_as_bytes));
+        println!("");
         Ok(())
     }
 
